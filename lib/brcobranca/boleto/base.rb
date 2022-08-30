@@ -95,6 +95,8 @@ module Brcobranca
       attr_accessor :carne
       # <b>OPCIONAL</b>: EMV para gerar QRCode para pagamento via PIX
       attr_accessor :emv
+      # <b>OPCIONAL</b>: Detalhes do qrcode para o PIX
+      attr_accessor :pix_details
 
       # Validações
       validates_presence_of :agencia, :conta_corrente, :moeda, :especie_documento, :especie, :aceite, :nosso_numero,
