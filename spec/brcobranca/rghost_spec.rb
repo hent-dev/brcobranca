@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'RGhost' do
-  before do
-    @valid_attributes = {
+  let(:valid_attributes) do
+    {
       valor: 0.0,
       cedente: 'Kivanio Barbosa',
       documento_cedente: '12345678912',
