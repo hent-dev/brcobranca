@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'Muúltiplos boletos' do # :nodoc:[all]
-  before do
-    @valid_attributes = {
+  let(:valid_attributes) do
+    {
       valor: 0.0,
       cedente: 'Kivanio Barbosa',
       documento_cedente: '12345678912',
@@ -18,9 +18,9 @@ RSpec.describe 'Muúltiplos boletos' do # :nodoc:[all]
   end
 
   it 'imprimir múltiplos boleto em lote' do
-    boleto_1 = Brcobranca::Boleto::BancoBrasil.new(@valid_attributes)
-    boleto_2 = Brcobranca::Boleto::Bradesco.new(@valid_attributes)
-    boleto_3 = Brcobranca::Boleto::BancoBrasil.new(@valid_attributes)
+    boleto_1 = Brcobranca::Boleto::BancoBrasil.new(valid_attributes)
+    boleto_2 = Brcobranca::Boleto::Bradesco.new(valid_attributes)
+    boleto_3 = Brcobranca::Boleto::BancoBrasil.new(valid_attributes)
 
     boletos = [boleto_1, boleto_2, boleto_3]
 

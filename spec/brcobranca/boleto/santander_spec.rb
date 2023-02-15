@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Brcobranca::Boleto::Santander do
-  before do
-    @valid_attributes = {
+  let(:valid_attributes) do
+    {
       valor: 25.0,
       cedente: 'Kivanio Barbosa',
       documento_cedente: '12345678912',
@@ -34,7 +34,7 @@ RSpec.describe Brcobranca::Boleto::Santander do
   end
 
   it 'Criar nova instancia com atributos válidos' do
-    boleto_novo = described_class.new(@valid_attributes)
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.banco).to eql('033')
     expect(boleto_novo.especie_documento).to eql('DM')
     expect(boleto_novo.especie).to eql('R$')
@@ -57,17 +57,17 @@ RSpec.describe Brcobranca::Boleto::Santander do
   end
 
   it 'Gerar boleto' do
-    @valid_attributes[:data_vencimento] = Date.parse('2011/10/09')
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:data_vencimento] = Date.parse('2011/10/09')
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.codigo_barras_segunda_parte.size).to eq(25)
     expect(boleto_novo.codigo_barras_segunda_parte).to eql('9189977500000900002690102')
     expect(boleto_novo.codigo_barras).to eql('03399511500000025009189977500000900002690102')
     expect(boleto_novo.codigo_barras.linha_digitavel).to eql('03399.18997 77500.000904 00026.901025 9 51150000002500')
 
-    @valid_attributes[:valor] = 54.00
-    @valid_attributes[:nosso_numero] = '9000272'
-    @valid_attributes[:data_vencimento] = Date.parse('2012/09/08')
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:valor] = 54.00
+    valid_attributes[:nosso_numero] = '9000272'
+    valid_attributes[:data_vencimento] = Date.parse('2012/09/08')
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.codigo_barras_segunda_parte.size).to eq(25)
     expect(boleto_novo.codigo_barras_segunda_parte).to eql('9189977500000900027250102')
     expect(boleto_novo.codigo_barras).to eql('03393545000000054009189977500000900027250102')
@@ -81,26 +81,26 @@ RSpec.describe Brcobranca::Boleto::Santander do
   end
 
   it 'Montar nosso_numero_dv' do
-    @valid_attributes[:nosso_numero] = '566612457800'
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:nosso_numero] = '566612457800'
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.nosso_numero_dv).to be(2)
 
-    @valid_attributes[:nosso_numero] = '90002720'
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:nosso_numero] = '90002720'
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.nosso_numero_dv).to be(7)
 
-    @valid_attributes[:nosso_numero] = '1961005'
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:nosso_numero] = '1961005'
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.nosso_numero_dv).to be(0)
   end
 
   it 'Montar nosso_numero_boleto' do
-    @valid_attributes[:nosso_numero] = '566612457800'
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:nosso_numero] = '566612457800'
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.nosso_numero_boleto).to eql('566612457800-2')
 
-    @valid_attributes[:nosso_numero] = '90002720'
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:nosso_numero] = '90002720'
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.nosso_numero_boleto).to eql('90002720-7')
   end
 
@@ -109,8 +109,8 @@ RSpec.describe Brcobranca::Boleto::Santander do
   end
 
   it 'Gerar boleto nos formatos válidos com método to_' do
-    @valid_attributes[:data_documento] = Date.parse('2009/08/13')
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:data_documento] = Date.parse('2009/08/13')
+    boleto_novo = described_class.new(valid_attributes)
 
     %w[pdf jpg tif png].each do |format|
       file_body = boleto_novo.send(:"to_#{format}")
@@ -125,8 +125,8 @@ RSpec.describe Brcobranca::Boleto::Santander do
   end
 
   it 'Gerar boleto nos formatos válidos' do
-    @valid_attributes[:data_documento] = Date.parse('2009/08/13')
-    boleto_novo = described_class.new(@valid_attributes)
+    valid_attributes[:data_documento] = Date.parse('2009/08/13')
+    boleto_novo = described_class.new(valid_attributes)
 
     %w[pdf jpg tif png].each do |format|
       file_body = boleto_novo.to(format)
