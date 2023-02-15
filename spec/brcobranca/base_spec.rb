@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Brcobranca::Boleto::Base do
-  before do
-    @valid_attributes = {
+  let(:valid_attributes) do
+    {
       especie_documento: 'DM',
       moeda: '9',
       aceite: 'S',
@@ -39,7 +39,7 @@ RSpec.describe Brcobranca::Boleto::Base do
   end
 
   it 'Criar nova instancia com atributos válidos' do
-    boleto_novo = described_class.new(@valid_attributes)
+    boleto_novo = described_class.new(valid_attributes)
     expect(boleto_novo.especie_documento).to eql('DM')
     expect(boleto_novo.especie).to eql('R$')
     expect(boleto_novo.moeda).to eql('9')
@@ -63,7 +63,7 @@ RSpec.describe Brcobranca::Boleto::Base do
   end
 
   it 'Calcula agencia_dv' do
-    boleto_novo = described_class.new(@valid_attributes)
+    boleto_novo = described_class.new(valid_attributes)
     boleto_novo.agencia = '85068014982'
     expect(boleto_novo.agencia_dv).to be(9)
     boleto_novo.agencia = '05009401448'
@@ -91,7 +91,7 @@ RSpec.describe Brcobranca::Boleto::Base do
   end
 
   it 'Calcula conta_corrente_dv' do
-    boleto_novo = described_class.new(@valid_attributes)
+    boleto_novo = described_class.new(valid_attributes)
     boleto_novo.conta_corrente = '85068014982'
     expect(boleto_novo.conta_corrente_dv).to be(9)
     boleto_novo.conta_corrente = '05009401448'
@@ -119,7 +119,7 @@ RSpec.describe Brcobranca::Boleto::Base do
   end
 
   it 'Calcula o valor do documento' do
-    boleto_novo = described_class.new(@valid_attributes)
+    boleto_novo = described_class.new(valid_attributes)
     boleto_novo.quantidade = 1
     boleto_novo.valor = 1
     expect(boleto_novo.valor_documento).to eq(1.0)
@@ -141,7 +141,7 @@ RSpec.describe Brcobranca::Boleto::Base do
   end
 
   it 'Mostrar aviso sobre sobrecarga de métodos padrões' do
-    boleto_novo = described_class.new(@valid_attributes)
+    boleto_novo = described_class.new(valid_attributes)
     expect do
       boleto_novo.codigo_barras_segunda_parte
     end.to raise_error(Brcobranca::NaoImplementado,
