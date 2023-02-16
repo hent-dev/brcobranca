@@ -72,39 +72,39 @@ module Brcobranca
         def modelo_generico(boleto, options = {})
           doc = Document.new paper: [21, 29.7] # A4
 
-          doc.security do |sec|
-            sec.owner_password = boleto.senha
-            sec.user_password = boleto.senha
-            sec.key_length = 128
-          end unless boleto.senha.blank?
+            doc.security do |sec|
+              sec.owner_password = boleto.senha_proprietario
+              sec.user_password = boleto.senha_usuario
+              sec.key_length = 128
+            end if boleto.usa_senha?
 
-          template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
-          raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
+            template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
+            raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
+            modelo_recibo_beneficiario(doc, boleto)
+            modelo_generico_template(doc, boleto, template_path)
+            modelo_generico_cabecalho(doc, boleto)
+            modelo_generico_rodape(doc, boleto)
+            # Gerando stream
+            formato = (options.delete(:formato) || Brcobranca.configuration.formato)
+            resolucao = (options.delete(:resolucao) || Brcobranca.configuration.resolucao)
+            doc.render_stream(formato.to_sym, resolution: resolucao)
+          end
+  
+          # Retorna um stream para multiplos boletos pronto para gravação em arquivo.
+          #
+          # @return [Stream]
+          # @param [Array] Instâncias de classes de boleto.
+          # @param [Hash] options Opção para a criação do boleto.
+          # @option options [Symbol] :resolucao Resolução em pixels.
+          # @option options [Symbol] :formato Formato desejado [:pdf, :jpg, :tif, :png, :ps, :laserjet, ... etc]
+          def modelo_generico_multipage(boletos, options = {})
+            doc = Document.new paper: [21,29.7] # A4
 
-          modelo_recibo_beneficiario(doc, boleto)
-          modelo_generico_template(doc, boleto, template_path)
-          modelo_generico_cabecalho(doc, boleto)
-          modelo_generico_rodape(doc, boleto)
-          # Gerando stream
-          formato = options.delete(:formato) || Brcobranca.configuration.formato
-          resolucao = options.delete(:resolucao) || Brcobranca.configuration.resolucao
-          doc.render_stream(formato.to_sym, resolution: resolucao)
-        end
-
-        # Retorna um stream para multiplos boletos pronto para gravação em arquivo.
-        #
-        # @return [Stream]
-        # @param [Array] Instâncias de classes de boleto.
-        # @param [Hash] options Opção para a criação do boleto.
-        # @option options [Symbol] :resolucao Resolução em pixels.
-        # @option options [Symbol] :formato Formato desejado [:pdf, :jpg, :tif, :png, :ps, :laserjet, ... etc]
-        def modelo_generico_multipage(boletos, options = {})
-          doc = Document.new paper: [21, 29.7] # A4
-          doc.security do |sec|
-            sec.owner_password = boletos.first.senha
-            sec.user_password = boletos.first.senha
-            sec.key_length = 128
-          end unless boletos.first.senha.blank?
+            doc.security do |sec|
+              sec.owner_password = boletos.first.senha_proprietario
+              sec.user_password = boletos.first.senha_usuario
+              sec.key_length = 128
+            end if boletos.first.usa_senha?
 
           template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
           raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
