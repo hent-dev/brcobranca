@@ -72,10 +72,10 @@ module Brcobranca
           doc = Document.new paper: [21, 9]
 
           doc.security do |sec|
-            sec.owner_password = boleto.senha
-            sec.user_password = boleto.senha
+            sec.owner_password = boleto.senha_proprietario
+            sec.user_password = boleto.senha_usuario
             sec.key_length = 128
-          end unless boleto.senha.blank?
+          end if boleto.usa_senha?
 
           colunas = calc_colunas 1
           linhas = calc_linhas 0
@@ -104,10 +104,10 @@ module Brcobranca
           doc = Document.new paper: :A4
 
           doc.security do |sec|
-            sec.owner_password = boletos.first.senha
-            sec.user_password = boletos.first.senha
+            sec.owner_password = boletos.first.senha_proprietario
+            sec.user_password = boletos.first.senha_usuario
             sec.key_length = 128
-          end unless boletos.first.senha.blank?
+          end if boletos.first.usa_senha?
 
           max_per_page = 3
           curr_page_position = 0

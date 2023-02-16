@@ -95,8 +95,10 @@ module Brcobranca
       attr_accessor :carne
       # <b>OPCIONAL</b>: Detalhes do qrcode para o PIX
       attr_accessor :pix_details
-      # <b>OPCIONAL</b>: Senha para o boleto
-      attr_accessor :senha
+      # <b>OPCIONAL</b>: Senha do usuário para o boleto
+      attr_accessor :senha_usuario
+      # <b>OPCIONAL</b>: Senha do proprietário para o boleto
+      attr_accessor :senha_proprietario
 
       # Validações
       validates_presence_of :agencia, :conta_corrente, :moeda, :especie_documento, :especie, :aceite, :nosso_numero,
@@ -234,6 +236,12 @@ module Brcobranca
       # @abstract Deverá ser sobreescrito para cada banco.
       def codigo_barras_segunda_parte
         raise Brcobranca::NaoImplementado, 'Sobreescreva este método na classe referente ao banco que você esta criando'
+      end
+
+      # Senha aplicada no PDF do boleto.
+      # @return [Boolean]
+      def usa_senha?
+        senha_usuario.present? && senha_proprietario.present?
       end
 
       private
