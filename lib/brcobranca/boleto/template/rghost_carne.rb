@@ -75,6 +75,7 @@ module Brcobranca
             sec.owner_password = boleto.senha_proprietario
             sec.user_password = boleto.senha_usuario
             sec.key_length = 128
+            sec.disable :print, :modify, :annotate, :interactive, :assemble
           end if boleto.usa_senha?
 
           colunas = calc_colunas 1
@@ -107,6 +108,7 @@ module Brcobranca
             sec.owner_password = boletos.first.senha_proprietario
             sec.user_password = boletos.first.senha_usuario
             sec.key_length = 128
+            sec.disable :print, :modify, :annotate, :interactive, :assemble
           end if boletos.first.usa_senha?
 
           max_per_page = 3

@@ -76,6 +76,7 @@ module Brcobranca
               sec.owner_password = boleto.senha_proprietario
               sec.user_password = boleto.senha_usuario
               sec.key_length = 128
+              sec.disable :print, :modify, :annotate, :interactive, :assemble
             end if boleto.usa_senha?
 
             template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
@@ -104,6 +105,7 @@ module Brcobranca
               sec.owner_password = boletos.first.senha_proprietario
               sec.user_password = boletos.first.senha_usuario
               sec.key_length = 128
+              sec.disable :print, :modify, :annotate, :interactive, :assemble
             end if boletos.first.usa_senha?
 
           template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
