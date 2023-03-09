@@ -73,12 +73,7 @@ begin
           def modelo_generico(boleto, options = {})
             doc = Document.new paper: [21,29.7] # A4
 
-            doc.security do |sec|
-              sec.owner_password = boleto.senha_proprietario
-              sec.user_password = boleto.senha_usuario
-              sec.key_length = 128
-              sec.disable :print, :modify, :annotate, :interactive, :assemble
-            end if boleto.usa_senha?
+            Brcobranca::Util::Security.apply_password(document: doc, boleto: boleto)
 
             template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
             raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
@@ -102,12 +97,7 @@ begin
           def modelo_generico_multipage(boletos, options = {})
             doc = Document.new paper: [21,29.7] # A4
 
-            doc.security do |sec|
-              sec.owner_password = boletos.first.senha_proprietario
-              sec.user_password = boletos.first.senha_usuario
-              sec.key_length = 128
-              sec.disable :print, :modify, :annotate, :interactive, :assemble
-            end if boletos.first.usa_senha?
+            Brcobranca::Util::Security.apply_password(document: doc, boleto: boletos.first)
 
             template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico2.eps')
             raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
