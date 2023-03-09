@@ -71,11 +71,7 @@ module Brcobranca
         def modelo_carne(boleto, options = {})
           doc = Document.new paper: [21, 9]
 
-          doc.security do |sec|
-            sec.owner_password = boleto.senha_proprietario
-            sec.user_password = boleto.senha_usuario
-            sec.key_length = 128
-          end if boleto.usa_senha?
+          Brcobranca::Util::Security.apply_password(document: doc, boleto: boleto)
 
           colunas = calc_colunas 1
           linhas = calc_linhas 0
@@ -103,11 +99,7 @@ module Brcobranca
         def modelo_carne_multipage(boletos, options = {})
           doc = Document.new paper: :A4
 
-          doc.security do |sec|
-            sec.owner_password = boletos.first.senha_proprietario
-            sec.user_password = boletos.first.senha_usuario
-            sec.key_length = 128
-          end if boletos.first.usa_senha?
+          Brcobranca::Util::Security.apply_password(document: doc, boleto: boletos.first)
 
           max_per_page = 3
           curr_page_position = 0
