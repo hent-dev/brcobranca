@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    brcobranca (11.0.0)
+    brcobranca (11.2.1)
       fast_blank
       parseline (>= 1.0.3)
       rghost (>= 0.9.8)
