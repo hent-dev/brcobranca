@@ -8,6 +8,7 @@ require 'brcobranca/calculo_data'
 require 'brcobranca/currency'
 require 'brcobranca/validations'
 require 'brcobranca/util/date'
+require 'fast_blank'
 
 module Brcobranca
   # Exception lançada quando algum tipo de boleto soicitado ainda não tiver sido implementado.
@@ -119,8 +120,9 @@ module Brcobranca
     module Template
       autoload :Base,        'brcobranca/boleto/template/base'
       autoload :Rghost,      'brcobranca/boleto/template/rghost'
-      autoload :Rghost2,     'brcobranca/boleto/template/rghost2'     
+      autoload :Rghost2,     'brcobranca/boleto/template/rghost2'
       autoload :RghostCarne, 'brcobranca/boleto/template/rghost_carne'
+      autoload :RghostBolepix, 'brcobranca/boleto/template/rghost_bolepix'
     end
   end
 
@@ -179,6 +181,7 @@ module Brcobranca
       autoload :BaseCorrespondente, 'brcobranca/remessa/cnab240/base_correspondente'
       autoload :Caixa,              'brcobranca/remessa/cnab240/caixa'
       autoload :BancoBrasil,        'brcobranca/remessa/cnab240/banco_brasil'
+      autoload :Santander,          'brcobranca/remessa/cnab240/santander'
       autoload :Sicoob,             'brcobranca/remessa/cnab240/sicoob'
       autoload :SicoobBancoBrasil,  'brcobranca/remessa/cnab240/sicoob_banco_brasil'
       autoload :Sicredi,            'brcobranca/remessa/cnab240/sicredi'

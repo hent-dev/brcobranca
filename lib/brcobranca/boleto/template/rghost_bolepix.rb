@@ -20,7 +20,7 @@ module Brcobranca
   module Boleto
     module Template
       # Templates para usar com Rghost
-      module Rghost
+      module RghostBolepix
         extend self
         include RGhost unless include?(RGhost)
         RGhost::Config::GS[:external_encoding] = Brcobranca.configuration.external_encoding
@@ -33,15 +33,6 @@ module Brcobranca
         # @see Rghost#modelo_generico Recebe os mesmos parâmetros do Rghost#modelo_generico.
         def to(formato, options = {})
           modelo_generico(self, options.merge!(formato: formato))
-        end
-
-        # Gera o boleto em usando o formato desejado [:pdf, :jpg, :tif, :png, :ps, :laserjet, ... etc]
-        #
-        # @return [Stream]
-        # @see http://wiki.github.com/shairontoledo/rghost/supported-devices-drivers-and-formats Veja mais formatos na documentação do rghost.
-        # @see Rghost#modelo_generico Recebe os mesmos parâmetros do Rghost#modelo_generico.
-        def lote(boletos, options = {})
-          modelo_generico_multipage(boletos, options)
         end
 
         #  Cria o métodos dinâmicos (to_pdf, to_gif e etc) com todos os fomátos válidos.
@@ -71,21 +62,12 @@ module Brcobranca
         def modelo_generico(boleto, options = {})
           doc = Document.new paper: :A4 # 210x297
 
-          Brcobranca::Util::Security.apply_password(document: doc, boleto: boleto)
-
-          with_logo = boleto.recipient_logo_details.present?
-          template_name = with_logo ? 'modelo_generico_logo.eps' : 'modelo_generico.eps'
-          with_pix = boleto.pix_details.present?
-          template_name = with_pix ? 'modelo_generico_logo_pix.eps' : template_name
-
-          template_path = File.join(File.dirname(__FILE__),
-                                    '..', '..', 'arquivos', 'templates', template_name)
+          template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico.eps')
 
           raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
 
           modelo_generico_template(doc, boleto, template_path)
-          modelo_generico_logo(doc, boleto) if with_logo
-          modelo_generico_cabecalho(doc, boleto, with_logo: with_logo)
+          modelo_generico_cabecalho(doc, boleto)
           modelo_generico_rodape(doc, boleto)
 
           # Gerando codigo de barra com rghost_barcode
@@ -94,42 +76,17 @@ module Brcobranca
                                                               y: "#{@y - 1.67} cm")
           end
 
-          # Gerando stream
-          formato = options.delete(:formato) || Brcobranca.configuration.formato
-          resolucao = options.delete(:resolucao) || Brcobranca.configuration.resolucao
-          doc.render_stream(formato.to_sym, resolution: resolucao)
-        end
-
-        # Retorna um stream para multiplos boletos pronto para gravação em arquivo.
-        #
-        # @return [Stream]
-        # @param [Array] Instâncias de classes de boleto.
-        # @param [Hash] options Opção para a criação do boleto.
-        # @option options [Symbol] :resolucao Resolução em pixels.
-        # @option options [Symbol] :formato Formato desejado [:pdf, :jpg, :tif, :png, :ps, :laserjet, ... etc]
-        def modelo_generico_multipage(boletos, options = {})
-          doc = Document.new paper: :A4 # 210x297
-
-          Brcobranca::Util::Security.apply_password(document: doc, boleto: boletos.first)
-
-          template_path = File.join(File.dirname(__FILE__), '..', '..', 'arquivos', 'templates', 'modelo_generico.eps')
-
-          raise 'Não foi possível encontrar o template. Verifique o caminho' unless File.exist?(template_path)
-
-          boletos.each_with_index do |boleto, index|
-            modelo_generico_template(doc, boleto, template_path)
-            modelo_generico_cabecalho(doc, boleto)
-            modelo_generico_rodape(doc, boleto)
-
-            # Gerando codigo de barra com rghost_barcode
-            if boleto.codigo_barras
-              doc.barcode_interleaved2of5(boleto.codigo_barras, width: '10.3 cm', height: '1.3 cm', x: "#{@x - 1.7} cm",
-                                                                y: "#{@y - 1.67} cm")
-            end
-
-            # Cria nova página se não for o último boleto
-            doc.next_page unless index == boletos.length - 1
+          # Gerando QRCode a partir de um emv
+          if boleto.emv
+            doc.barcode_qrcode(boleto.emv, width: '2.5 cm',
+                                           height: '2.5 cm',
+                                           eclevel: 'H',
+                                           x: "#{@x + 12.9} cm",
+                                           y: "#{@y - 2.50} cm")
+            move_more(doc, @x + 12.9, @y - 3.70)
+            doc.show 'Pague com PIX'
           end
+
           # Gerando stream
           formato = options.delete(:formato) || Brcobranca.configuration.formato
           resolucao = options.delete(:resolucao) || Brcobranca.configuration.resolucao
@@ -144,10 +101,6 @@ module Brcobranca
           doc.define_tags do
             tag :grande, size: 13
             tag :maior, size: 15
-            tag :menor, name: "LiberationMono", size: 8
-            tag :menor2, name: "LiberationMono", size: 6
-            tag :menor3, name: "Segoi-UI-Bold", size: 6, color: '374151'
-            tag :menor_bold, name: "Segoi-UI-Bold", size: 8, color: '374151'
           end
         end
 
@@ -157,78 +110,12 @@ module Brcobranca
           doc.moveto x: "#{@x} cm", y: "#{@y} cm"
         end
 
-        # Monta o logo do layout do boleto
-        def modelo_generico_logo(doc, boleto)
-          draw_pix(doc, boleto.pix_details)
-
-          @x = 0.50
-          @y = 27.42
-          move_more(doc, 0.5, -0.2)
-          doc.show boleto.recipient_logo_details[:title]&.truncate(35), tag: :maior
-          move_more(doc, 0, -0.6)
-          doc.show boleto.recipient_logo_details[:sub_title]&.truncate(35), tag: :grande
-          move_more(doc, 0, -0.6)
-          doc.show boleto.recipient_logo_details[:text1]&.truncate(65)
-          move_more(doc, 0, -0.45)
-          doc.show boleto.recipient_logo_details[:text2]&.truncate(65)
-          move_more(doc, 0, -0.45)
-          doc.show boleto.recipient_logo_details[:text3]&.truncate(65)
-          move_more(doc, 0, -0.45)
-          doc.show boleto.recipient_logo_details[:text4]&.truncate(65)
-          move_more(doc, 0, -0.45)
-          doc.show boleto.recipient_logo_details[:text5]&.truncate(65)
-
-          has_pix = boleto.pix_details.present?
-          draw_logo(doc, boleto.recipient_logo_details, has_pix)
-        end
-
-        def draw_logo(doc, logo_details, has_pix)
-          return if logo_details[:image_path].blank?
-
-          increment = has_pix ? 0.0 : 4.21
-
-          @x = 11.083 + increment
-          @y = 23.62
-
-          square_size_cm = 3.2
-
-          # 1cm in rails -> 0.95cm in chrome pdf
-          y_border = 4.1 - (square_size_cm/100) * logo_details[:image_shape][:height]
-          y_border = y_border/2.0
-          inc_y = y_border/0.95
-
-          x_border = 4.8 - (square_size_cm/100) * logo_details[:image_shape][:width]
-          x_border = x_border/2.0
-          inc_x = x_border/0.95
-
-          move_more(doc, inc_x, inc_y)
-          doc.set Jpeg.new logo_details[:image_path], x: "#{@x} cm" , y: "#{@y} cm"
-        end
-
-        def draw_pix(doc, pix_details)
-          return if pix_details.blank?
-
-          doc.set Jpeg.new pix_details[:qrcode].path, x: " 16.835 cm", y: "24.4 cm"
-          @x = 17.175
-          @y = 27.5
-          move_more(doc, 0, 0)
-          doc.show pix_details[:title], tag: :menor_bold
-          
-          move_more(doc, -0.25, -3.45)
-          doc.set Jpeg.new pix_details[:icon], x: "#{@x} cm", y: "#{@y} cm", zoom: 20
-          
-          move_more(doc, 0.7, 0.35)
-          doc.show pix_details[:description1], tag: :menor3
-          move_more(doc, 0, -0.25)
-          doc.show pix_details[:description2], tag: :menor3
-        end
-
         # Monta o cabeçalho do layout do boleto
-        def modelo_generico_cabecalho(doc, boleto, with_logo: false)
+        def modelo_generico_cabecalho(doc, boleto)
           # INICIO Primeira parte do BOLETO
           # Pontos iniciais em x e y
           @x = 0.50
-          @y = with_logo ? 21.00 : 27.42 # LOGOTIPO do BANCO
+          @y = 27.42
           # LOGOTIPO do BANCO
           doc.image boleto.logotipo, x: "#{@x} cm", y: "#{@y} cm"
           # Dados
@@ -348,7 +235,9 @@ module Brcobranca
           doc.show boleto.valor_documento.to_currency
 
           if boleto.instrucoes
-            doc.text_area boleto.instrucoes, width: '14 cm', text_align: :left, x: "#{@x -= 15.8} cm", y: "#{@y -= 0.9} cm",
+            doc.text_area boleto.instrucoes, width: '14 cm',
+                                             text_align: :left, x: "#{@x -= 15.8} cm",
+                                             y: "#{@y -= 0.9} cm",
                                              row_height: '0.4 cm'
             move_more(doc, 0, -2)
           else
@@ -373,7 +262,8 @@ module Brcobranca
 
           move_more(doc, 0.5, -1.9)
           if boleto.sacado && boleto.sacado_documento
-            doc.show "#{boleto.sacado} - CPF/CNPJ: #{boleto.sacado_documento.formata_documento}"
+            sacado_info = "#{boleto.sacado} - CPF/CNPJ: #{boleto.sacado_documento.formata_documento}"
+            doc.show sacado_info
           end
 
           move_more(doc, 0, -0.4)

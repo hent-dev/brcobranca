@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_support/core_ext/object/blank'
-
 module Brcobranca
   module Remessa
     class Pagamento
@@ -134,7 +132,7 @@ module Brcobranca
 
         campos = padrao.merge!(campos)
         campos.each do |campo, valor|
-          send "#{campo}=", valor
+          send :"#{campo}=", valor
         end
 
         yield self if block_given?
@@ -219,7 +217,7 @@ module Brcobranca
       end
 
       def documento_ou_numero
-        documento.present? ? documento : numero
+        documento || numero
       end
 
       def formata_documento_ou_numero(tamanho = 25, caracter = ' ')
@@ -313,7 +311,7 @@ module Brcobranca
       def format_value(attribute, tamanho)
         value = send(attribute)
 
-        raise ValorInvalido, "Pagamento##{attribute}: Deve ser um Float" unless /\./.match?(value.to_s)
+        raise ValorInvalido, "Pagamento##{attribute}: Deve ser um Float" unless value.to_s.include?('.')
 
         format('%.2f', value).delete('.').rjust(tamanho, '0')
       end

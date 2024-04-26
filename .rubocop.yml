@@ -6,8 +6,12 @@ require:
 
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 2.7
   SuggestExtensions: false
 
 Style/FrozenStringLiteralComment:
   EnforcedStyle: always
+
+Layout/LineLength:
+  Max: 125
+  AllowedPatterns: ['\A#']

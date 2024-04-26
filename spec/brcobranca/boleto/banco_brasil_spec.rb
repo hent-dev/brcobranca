@@ -6,7 +6,7 @@ RSpec.describe Brcobranca::Boleto::BancoBrasil do # :nodoc:[all]
   let(:valid_attributes) do
     {
       valor: 0.0,
-      local_pagamento: 'QUALQUER BANCO ATÉ O VENCIMENTO',
+      local_pagamento: 'PAGÁVEL EM QUALQUER BANCO.',
       cedente: 'Kivanio Barbosa',
       documento_cedente: '12345678912',
       sacado: 'Claudio Pozzebom',
@@ -30,7 +30,7 @@ RSpec.describe Brcobranca::Boleto::BancoBrasil do # :nodoc:[all]
     expect(boleto_novo.quantidade).to be(1)
     expect(boleto_novo.valor).to eq(0.0)
     expect(boleto_novo.valor_documento).to eq(0.0)
-    expect(boleto_novo.local_pagamento).to eql('QUALQUER BANCO ATÉ O VENCIMENTO')
+    expect(boleto_novo.local_pagamento).to eql('PAGÁVEL EM QUALQUER BANCO.')
     expect(boleto_novo.carteira).to eql('18')
     expect(boleto_novo.codigo_servico).to be_falsey
   end
@@ -47,7 +47,7 @@ RSpec.describe Brcobranca::Boleto::BancoBrasil do # :nodoc:[all]
     expect(boleto_novo.quantidade).to be(1)
     expect(boleto_novo.valor).to eq(0.0)
     expect(boleto_novo.valor_documento).to eq(0.0)
-    expect(boleto_novo.local_pagamento).to eql('QUALQUER BANCO ATÉ O VENCIMENTO')
+    expect(boleto_novo.local_pagamento).to eql('PAGÁVEL EM QUALQUER BANCO.')
     expect(boleto_novo.cedente).to eql('Kivanio Barbosa')
     expect(boleto_novo.documento_cedente).to eql('12345678912')
     expect(boleto_novo.sacado).to eql('Claudio Pozzebom')
@@ -202,7 +202,7 @@ RSpec.describe Brcobranca::Boleto::BancoBrasil do # :nodoc:[all]
   it 'Montar código de barras para convenio de 7 digitos e nosso número de 10 e carteira 17' do
     valid_attributes = {
       valor: 2246.74,
-      local_pagamento: 'QUALQUER BANCO ATÉ O VENCIMENTO',
+      local_pagamento: 'PAGÁVEL EM QUALQUER BANCO.',
       cedente: 'Kivanio Barbosa',
       documento_cedente: '12345678912',
       sacado: 'Claudio Pozzebom',
@@ -304,7 +304,7 @@ RSpec.describe Brcobranca::Boleto::BancoBrasil do # :nodoc:[all]
     valid_attributes[:nosso_numero] = '7777700168'
     boleto_novo = described_class.new(valid_attributes)
     %w[pdf jpg tif png].each do |format|
-      file_body = boleto_novo.send("to_#{format}".to_sym)
+      file_body = boleto_novo.send(:"to_#{format}")
       tmp_file = Tempfile.new(['foobar.', format])
       tmp_file.puts file_body
       tmp_file.close

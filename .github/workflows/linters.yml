@@ -3,20 +3,19 @@ on:
   push:
     branches: [master]
   pull_request:
-    branches: [master]
-
+    branches: ['master']
 jobs:
-  rubocop:
-    name: rubocop
-    runs-on: ubuntu-20.04
-
+  lint:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: ruby/setup-ruby@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Ruby and gems
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0'
+          ruby-version: '2.7'
           bundler-cache: true
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-      - run: |
-          bundle exec rubocop --color --parallel --fail-level E
+
+      - name: Lint Ruby files
+        run: bundle exec rubocop --color --parallel --fail-level E

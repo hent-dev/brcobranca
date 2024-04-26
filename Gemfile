@@ -6,16 +6,15 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'github_changelog_generator'
   gem 'pry'
   gem 'rubocop'
   gem 'rubocop-packaging'
   gem 'rubocop-performance'
   gem 'rubocop-rspec'
-  gem 'solargraph'
 end
 
 group :test do
+  gem 'code-scanning-rubocop'
   gem 'json'
   gem 'rake'
   gem 'rspec'

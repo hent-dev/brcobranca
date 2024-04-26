@@ -93,6 +93,8 @@ module Brcobranca
       attr_accessor :recipient_logo_details
       # <b>OPCIONAL</b>: Marcar como verdadeiro se boleto gerado em modo carne
       attr_accessor :carne
+      # <b>OPCIONAL</b>: EMV para gerar QRCode para pagamento via PIX
+      attr_accessor :emv
       # <b>OPCIONAL</b>: Detalhes do qrcode para o PIX
       attr_accessor :pix_details
       # <b>OPCIONAL</b>: Senha do usuário para o boleto
@@ -123,7 +125,7 @@ module Brcobranca
 
         campos = padrao.merge!(campos)
         campos.each do |campo, valor|
-          send "#{campo}=", valor
+          send :"#{campo}=", valor
         end
 
         yield self if block_given?

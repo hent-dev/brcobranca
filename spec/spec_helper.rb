@@ -7,10 +7,11 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'timecop'
-require 'pry'
 require 'tempfile'
 require 'brcobranca'
 require 'rghost'
+require 'active_support'
+require 'active_support/core_ext/object'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
