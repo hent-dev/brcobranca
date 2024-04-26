@@ -27,6 +27,7 @@ Gem::Specification.new do |gem|
 
   gem.requirements = ['GhostScript > 9.0, para gerar PDF e código de Barras']
 
+  gem.add_dependency 'activesupport', '>= 5.2.6'
   gem.add_dependency 'fast_blank'
   gem.add_dependency 'parseline', '>= 1.0.3'
   gem.add_dependency 'rghost', '>= 0.9.8'

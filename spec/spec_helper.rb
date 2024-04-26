@@ -10,6 +10,8 @@ require 'timecop'
 require 'tempfile'
 require 'brcobranca'
 require 'rghost'
+require 'active_support'
+require 'active_support/core_ext/object'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
